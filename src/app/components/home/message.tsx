@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { User2Icon, UserIcon } from 'lucide-react';
+import { UserIcon } from 'lucide-react';
 
 function getBrasiliaTime(date?: 'string'): string {
   const options: Intl.DateTimeFormatOptions = {
