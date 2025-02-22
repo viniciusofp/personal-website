@@ -1,9 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { ChatRequestOptions, CreateMessage, Message } from 'ai';
 import { memo } from 'react';
 import { Button } from '@/components/ui/button';
+import { motion } from 'motion/react';
 
 interface SuggestedActionsProps {
   chatId: string;
