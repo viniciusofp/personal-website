@@ -1,22 +1,9 @@
 'use client';
 
-import {
-  ArrowRight,
-  ArrowUpRight,
-  LoaderCircle,
-  SparklesIcon
-} from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useScrollToBottom } from '../use-scroll-to-bottom';
 import Message from './message';
-import Markdown from 'react-markdown';
-import { AnimatePresence, motion } from 'motion/react';
 
-import { client } from '@/sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
-import React from 'react';
-import { Overview } from './overview';
-import { cn } from '@/lib/utils';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Carousel,
   CarouselContent,
@@ -24,6 +11,10 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/ui/carousel';
+import { client } from '@/sanity/client';
+import imageUrlBuilder from '@sanity/image-url';
+import React from 'react';
+import { Overview } from './overview';
 const builder = imageUrlBuilder(client);
 
 function urlFor(source: any) {
@@ -44,6 +35,18 @@ export default function Messages({ messages, isLoading }: MessagesProps) {
       className="flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4"
     >
       {true && <Overview />}
+      {messages.length > 0 && (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="w-full mx-auto max-w-3xl px-4 group/message"
+          >
+            <div className="h-0.5 w-24 bg-stone-500 mx-auto rounded-sm"></div>
+          </motion.div>
+        </AnimatePresence>
+      )}
       {messages.map((m, index) => {
         return (
           <React.Fragment key={`message_${index}`}>
@@ -85,31 +88,33 @@ export default function Messages({ messages, isLoading }: MessagesProps) {
                                           .height(310)
                                           .url()
                                       : null;
+                                  console.log(proj);
                                   return (
-                                    <>
-                                      <CarouselItem className="lg:basis-1/2">
-                                        <div className="border p-2 rounded-lg flex items-center cursor-pointer hover:bg-stone-100 duration-200">
-                                          {postImageUrl && (
-                                            <div className="aspect-square rounded bg-black w-24 shrink-0 overflow-hidden relative">
-                                              <img
-                                                src={postImageUrl}
-                                                alt=""
-                                                className="w-full h-full object-cover object-center"
-                                              />
-                                            </div>
-                                          )}
-
-                                          <div className="pl-5">
-                                            <h2 className="font-bold">
-                                              {proj.title}
-                                            </h2>
-                                            <h3 className="text-sm text-stone-500 font-medium mb-1">
-                                              {proj.label}
-                                            </h3>
+                                    <CarouselItem
+                                      key={`${proj._id}_${m.id}`}
+                                      className="lg:basis-1/2"
+                                    >
+                                      <div className="border p-2 rounded-lg flex items-center cursor-pointer hover:bg-stone-100 duration-200">
+                                        {postImageUrl && (
+                                          <div className="aspect-square rounded bg-black w-24 shrink-0 overflow-hidden relative">
+                                            <img
+                                              src={postImageUrl}
+                                              alt=""
+                                              className="w-full h-full object-cover object-center"
+                                            />
                                           </div>
+                                        )}
+
+                                        <div className="pl-5">
+                                          <h2 className="font-bold">
+                                            {proj.title}
+                                          </h2>
+                                          <h3 className="text-sm text-stone-500 font-medium mb-1">
+                                            {proj.label}
+                                          </h3>
                                         </div>
-                                      </CarouselItem>
-                                    </>
+                                      </div>
+                                    </CarouselItem>
                                   );
                                 })}
                               </CarouselContent>

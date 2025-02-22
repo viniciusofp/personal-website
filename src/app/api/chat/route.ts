@@ -1,16 +1,17 @@
-import { z } from 'zod';
-import { openai } from '@ai-sdk/openai';
-import { generateObject, generateText, streamText, tool } from 'ai';
-import { SanityDocument } from 'next-sanity';
-import { client } from '@/sanity/client';
+import supabase from '@/lib/db/supabase';
 import { searchInSupabase } from '@/lib/embeddings';
-import { orderBy, sortBy, uniq } from 'lodash';
+import { client } from '@/sanity/client';
+import { openai } from '@ai-sdk/openai';
+import { generateObject, Message, streamText, tool } from 'ai';
+import { orderBy, uniq } from 'lodash';
+import { SanityDocument } from 'next-sanity';
+import { z } from 'zod';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages, id } = await req.json();
   const result = streamText({
     model: openai('gpt-4o-mini'),
     temperature: 1,
@@ -26,6 +27,17 @@ You do not need to mention specific frameworks, libraries or softwares used by t
 Do not use in your answer the data in the "post" property of getInformation tool output, this is for UI purposes.`,
     messages,
     maxSteps: 5,
+    onFinish: async (res) => {
+      const chatMessages = [
+        ...messages.map((m: Message) => ({ role: m.role, content: m.content })),
+        { role: 'assistant', content: res.text }
+      ];
+      const now = new Date();
+      const { error } = await supabase
+        .from('conversations')
+        .upsert({ chat_id: id, messages: chatMessages, updated_at: now });
+      if (error) console.error('Error fetching conversations:', error);
+    },
     tools: {
       getInformation: tool({
         description: `Get information from your knowledge base to answer questions.`,

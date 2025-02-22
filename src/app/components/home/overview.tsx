@@ -55,7 +55,6 @@ export const Overview = () => {
             dúvidas.
           </p>
         </div>
-        <div className="h-0.5 w-24 bg-stone-300 mx-auto rounded-sm"></div>
       </div>
     </motion.div>
   );
