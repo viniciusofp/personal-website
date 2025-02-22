@@ -37,7 +37,7 @@ export type MessagesProps = {
 
 export default function Messages({ messages, isLoading }: MessagesProps) {
   const [messagesContainerRef, messagesEndRef] =
-    useScrollToBottom<HTMLDivElement>(messages);
+    useScrollToBottom<HTMLDivElement>();
   return (
     <div
       ref={messagesContainerRef}
