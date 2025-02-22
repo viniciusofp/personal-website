@@ -1,119 +1,61 @@
 'use client';
+import { Button } from '@/components/ui/button';
 import { useChat } from '@ai-sdk/react';
-import Message from './message';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowUpRight } from 'lucide-react';
-import { client } from '@/sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
-
-const builder = imageUrlBuilder(client);
-
-function urlFor(source: any) {
-  return builder.image(source);
-}
+import { SparkleIcon } from 'lucide-react';
+import Link from 'next/link';
+import { useRef } from 'react';
+import Messages from './messages';
+import ModalInput from './modal-input';
 
 export type ChatProps = {};
 
 export default function Chat(props: ChatProps) {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
-
+  const formRef = useRef<HTMLFormElement>(null);
+  const {
+    id,
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    stop,
+    append,
+    setMessages,
+    isLoading
+  } = useChat();
   return (
-    <ScrollArea className="max-h-[80svh] w-full max-w-md mx-auto bg-black/10 px-5 rounded-xl border border-black/15">
-      <div className="grid gap-5 mx-auto pb-12 pt-5">
-        <Message agent="assistant">
-          <p>
-            Sou <b>desenvolvedor full-stack</b> formado em comunicação social e
-            costumo dizer que gosto de trabalhar transformando dados, pesquisas
-            e informações em produtos que sejam interessantes e compreendidos
-            pelo público. Você pode saber mais sobre minha formação e
-            experiência profissional no{' '}
-            <b className="underline inline-flex items-center">
-              Linkedin <ArrowUpRight className="w-3.5 h-3.5" />
-            </b>
-            .
-          </p>
-          <p>
-            Desenvolvi esse site para quem tenha interesse em trabalhar comigo
-            possa me encontrar, ver meu trabalho e tirar dúvidas.
-          </p>
-        </Message>
-        {messages.map((m) => (
-          <Message key={m.id} agent={m.role} message={m}>
-            {m.parts.map((part) => {
-              switch (part.type) {
-                // render text parts as simple text:
-                case 'text':
-                  return part.text;
-
-                // for tool invocations, distinguish between the tools and the state:
-                case 'tool-invocation': {
-                  const callId = part.toolInvocation.toolCallId;
-
-                  switch (part.toolInvocation.toolName) {
-                    case 'getProjects': {
-                      switch (part.toolInvocation.state) {
-                        case 'call':
-                          return (
-                            <div key={callId} className="text-gray-500">
-                              Buscando projetos...
-                            </div>
-                          );
-                        case 'result':
-                          const { posts, answerIntroduction } =
-                            part.toolInvocation.result;
-
-                          return (
-                            <div key={callId} className="grid gap-1.5">
-                              <p>{answerIntroduction}</p>
-                              {posts.map((post: any, i: number) => {
-                                return (
-                                  <div
-                                    key={post._id + 'sugestion' + i}
-                                    className="grid grid-cols-3 gap-3 items-center p-1 cursor-pointer border rounded border-transparent hover:bg-amber-100 hover:border-amber-200"
-                                  >
-                                    <div className="col-span-1">
-                                      <div className="aspect-4/3 overflow-hidden relative rounded-sm border">
-                                        <img
-                                          src={urlFor(post.media[0])
-                                            .width(300)
-                                            .url()}
-                                          className="w-full h-full object-cover object-center"
-                                        />
-                                      </div>
-                                    </div>
-                                    <div className="col-span-2">
-                                      <h2 className="font-bold text-xs !leading-tight">
-                                        {post.title}
-                                      </h2>
-                                      <p className="text-xs text-stone-500">
-                                        {post.label}
-                                      </p>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                              <h2 className="font-bold"></h2>
-                            </div>
-                          );
-                      }
-                      break;
-                    }
-                  }
-                }
-              }
-            })}
-          </Message>
-        ))}
-
-        <form onSubmit={handleSubmit}>
-          <input
-            className=""
-            value={input}
-            placeholder="Say something..."
-            onChange={handleInputChange}
-          />
-        </form>
-      </div>
-    </ScrollArea>
+    <div className="flex flex-col min-w-0 h-dvh bg-background">
+      <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">
+        <Button
+          className="bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 hidden md:flex py-1.5 px-2 h-fit md:h-[34px] order-4 md:ml-auto"
+          asChild
+        >
+          <Link
+            href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fai-chatbot&env=AUTH_SECRET,OPENAI_API_KEY&envDescription=Learn%20more%20about%20how%20to%20get%20the%20API%20Keys%20for%20the%20application&envLink=https%3A%2F%2Fgithub.com%2Fvercel%2Fai-chatbot%2Fblob%2Fmain%2F.env.example&demo-title=AI%20Chatbot&demo-description=An%20Open-Source%20AI%20Chatbot%20Template%20Built%20With%20Next.js%20and%20the%20AI%20SDK%20by%20Vercel.&demo-url=https%3A%2F%2Fchat.vercel.ai&stores=%5B%7B%22type%22:%22postgres%22%7D,%7B%22type%22:%22blob%22%7D%5D"
+            target="_noblank"
+          >
+            <SparkleIcon size={16} />
+            Deploy with Vercel
+          </Link>
+        </Button>
+      </header>
+      <Messages messages={messages} isLoading={isLoading} />
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl"
+      >
+        <ModalInput
+          input={input}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+          isLoading={isLoading}
+          messages={messages}
+          append={append}
+          chatId={id}
+          stop={stop}
+          setMessages={setMessages}
+        />
+      </form>
+    </div>
   );
 }

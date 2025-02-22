@@ -1,7 +1,10 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { UserIcon } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import CustomMarkdown from '../CustomMarkdown';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function getBrasiliaTime(date?: 'string'): string {
   const options: Intl.DateTimeFormatOptions = {
@@ -15,60 +18,52 @@ function getBrasiliaTime(date?: 'string'): string {
 }
 
 export type MessageProps = {
-  children: React.ReactNode;
   agent: 'system' | 'user' | 'assistant' | 'data';
   message?: any;
 };
 
 export default function Message(props: MessageProps) {
-  const { children, agent, message } = props;
+  const { agent, message } = props;
   return (
-    <div
-      className={cn(
-        'flex gap-3 items-end',
-        agent === 'assistant' ? 'justify-self-start' : 'justify-self-end'
-      )}
-    >
-      {agent === 'assistant' && (
-        <img
-          src="https://media.licdn.com/dms/image/v2/D4D03AQFHN9hXOTem5Q/profile-displayphoto-shrink_800_800/B4DZTS0apXG4Ag-/0/1738703744215?e=1744848000&v=beta&t=iqqgf7xgEFJ2nmcBDGokyGb97OjEGbRrkgqwx4jALdQ"
-          alt=""
-          className="rounded-full w-12 h-12 shadow border-2"
-        />
-      )}
-
-      <div
-        className={cn(
-          'px-5 pt-2 pb-3.5 [&>p]:z-10 border  shadow rounded-lg max-w-full text-sm text-stone-600 grid gap-3 relative',
-          agent === 'assistant'
-            ? ' rounded-bl-none bg-white'
-            : ' rounded-br-none bg-green-200 border-green-300'
-        )}
+    <AnimatePresence>
+      <motion.div
+        className="w-full mx-auto max-w-3xl px-4 group/message"
+        initial={{ y: 5, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        data-role={agent}
       >
         <div
           className={cn(
-            'absolute text-[9px] text-stone-500 bottom-0',
-            agent === 'assistant' ? 'right-2' : 'left-2'
+            'flex gap-4 w-full group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl',
+            {
+              'group-data-[role=user]/message:w-fit': true
+            }
           )}
         >
-          {message && getBrasiliaTime(message.createdAt)}
-        </div>
-        <div
-          className={cn(
-            `w-0 h-0 border-l-[8px] border-l-transparent
-border-b-[12px] border-r-[8px] border-r-transparent absolute -bottom-[1px] z-0`,
-            agent === 'assistant'
-              ? ' -left-2 border-b-white'
-              : ' -right-2 border-b-green-200'
+          {agent === 'assistant' && (
+            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background relative overflow-hidden">
+              <img
+                src="https://media.licdn.com/dms/image/v2/D4D03AQFHN9hXOTem5Q/profile-displayphoto-shrink_800_800/B4DZTS0apXG4Ag-/0/1738703744215?e=1744848000&v=beta&t=iqqgf7xgEFJ2nmcBDGokyGb97OjEGbRrkgqwx4jALdQ"
+                alt=""
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
           )}
-        ></div>
-        {children}
-      </div>
-      {agent === 'user' && (
-        <div className="rounded-full w-12 h-12 flex items-center justify-center shadow border-2 bg-slate-100">
-          <UserIcon className="w-7 h-7 text-slate-600" />
+
+          <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-row gap-2 items-start">
+              <div
+                className={cn('flex flex-col gap-4', {
+                  'bg-primary !text-primary-foreground px-3 py-2 rounded-xl':
+                    agent === 'user'
+                })}
+              >
+                <CustomMarkdown>{message}</CustomMarkdown>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
