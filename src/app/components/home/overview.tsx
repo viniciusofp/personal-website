@@ -1,8 +1,6 @@
-import { motion } from 'framer-motion';
 import { MessageCircleIcon, SparklesIcon } from 'lucide-react';
-import Link from 'next/link';
-import Markdown from 'react-markdown';
 import CustomMarkdown from '../CustomMarkdown';
+import { motion } from 'motion/react';
 
 export const Overview = () => {
   return (
