@@ -37,7 +37,7 @@ export type MessagesProps = {
 
 export default function Messages({ messages, isLoading }: MessagesProps) {
   const [messagesContainerRef, messagesEndRef] =
-    useScrollToBottom<HTMLDivElement>();
+    useScrollToBottom<HTMLDivElement>(messages);
   return (
     <div
       ref={messagesContainerRef}
@@ -45,7 +45,6 @@ export default function Messages({ messages, isLoading }: MessagesProps) {
     >
       {true && <Overview />}
       {messages.map((m, index) => {
-        console.log(m);
         return (
           <React.Fragment key={`message_${index}`}>
             {m.parts.map((part: any) => {
@@ -54,8 +53,8 @@ export default function Messages({ messages, isLoading }: MessagesProps) {
                   (t: any) => t.toolName === 'getInformation'
                 )[0]?.result.posts;
                 return (
-                  <>
-                    <Message key={m.id} agent={m.role} message={part.text} />
+                  <React.Fragment key={m.id}>
+                    <Message agent={m.role} message={part.text} />
                     {!!relatedProjects &&
                       !isLoading &&
                       m.id === messages[messages.length - 1].id && (
@@ -122,7 +121,7 @@ export default function Messages({ messages, isLoading }: MessagesProps) {
                           </motion.div>
                         </AnimatePresence>
                       )}
-                  </>
+                  </React.Fragment>
                 );
               }
             })}
