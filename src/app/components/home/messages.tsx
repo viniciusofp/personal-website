@@ -130,7 +130,11 @@ export default function Messages({ messages, isLoading }: MessagesProps) {
         );
       })}
       {isLoading && (
-        <Message key={`$_loading`} agent={'assistant'} message={'Hm...'} />
+        <Message
+          key={`$_loading`}
+          agent={'assistant'}
+          message={'Pensando...'}
+        />
       )}
       {/* <motion.div
         className="w-full mx-auto max-w-3xl px-4 group/message "
