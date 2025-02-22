@@ -28,7 +28,7 @@ export const Overview = () => {
         </div>
         <h1 className="~text-2xl/5xl font-black">Oi, como posso ajudar?</h1>
         <div>
-          <p className="~text-sm/base text-slate-600 mb-2">
+          <p className="text-slate-600 mb-2">
             Sou <b>Vinícius Pereira</b>,{' '}
             <em>
               desenvolvedor full-stack formado em jornalismo e com experiência
@@ -48,7 +48,7 @@ export const Overview = () => {
             </a>
             .
           </p>
-          <p className="~text-sm/base text-slate-600 mb-2">
+          <p className="text-slate-600 mb-2">
             Este é o meu portfolio — que desenvolvi em forma de chatbot para
             estudar inteligência artificial — para que quem tenha interesse em
             trabalhar comigo possa me encontrar, ver meu trabalho e tirar
