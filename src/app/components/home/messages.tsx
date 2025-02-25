@@ -134,11 +134,11 @@ export default function Messages({ messages, isLoading }: MessagesProps) {
         );
       })}
       {isLoading && (
-        <Message
-          key={`$_loading`}
-          agent={'assistant'}
-          message={'Pensando...'}
-        />
+        <AnimatePresence>
+          <motion.div className="w-full mx-auto max-w-3xl px-4 animate-pulse text-stone-500">
+            Pensando...
+          </motion.div>
+        </AnimatePresence>
       )}
       {/* <motion.div
         className="w-full mx-auto max-w-3xl px-4 group/message "

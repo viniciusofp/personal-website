@@ -1,10 +1,6 @@
-import Link from 'next/link';
-import { type SanityDocument } from 'next-sanity';
-import { motion } from 'motion/react';
 import { client } from '@/sanity/client';
 import { Linkedin } from 'lucide-react';
-import Hero from './components/home/hero';
-import { Button } from '@/components/ui/button';
+import { type SanityDocument } from 'next-sanity';
 import Chat from './components/home/chat';
 
 const POSTS_QUERY = `*[

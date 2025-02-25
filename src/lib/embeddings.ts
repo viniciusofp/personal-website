@@ -13,12 +13,17 @@ export const generateEmbedding = async (value: string): Promise<number[]> => {
   return embedding;
 };
 
-export const saveToSupabase = async (text: string, metadata = {}) => {
+export const saveToSupabase = async (
+  id: string,
+  type: string,
+  text: string,
+  metadata = {}
+) => {
   const embedding = await generateEmbedding(text);
 
   const { data, error } = await supabase
     .from('documents')
-    .insert([{ text, embedding, metadata }]);
+    .upsert([{ id, type, text, embedding, metadata }]);
 
   if (error) console.error('Erro ao salvar:', error);
   return data;
