@@ -20,24 +20,15 @@ export async function GET(request: NextRequest) {
     );
 
     for (const project of projects) {
-      await saveToSupabase(project._id, 'project', project.description, {
-        title: project.title,
-        url: project.url,
-        slug: project.slug.current,
-        label: project.label,
-        _id: project._id,
-        categories: project.categories.map((c: { name: string }) => c.name)
-      });
+      await saveToSupabase(
+        project._id,
+        'project',
+        `${project.title} - ${project.description}`,
+        project
+      );
     }
     for (const faq of faqs) {
-      await saveToSupabase(faq._id, 'faq', faq.text, {
-        title: faq.title,
-        _id: faq._id,
-        projects:
-          faq.relatedWork?.length > 1
-            ? faq.relatedWork.filter((c: any) => (c._type = 'projects'))
-            : []
-      });
+      await saveToSupabase(faq._id, 'faq', `${faq.title} - ${faq.text}`, faq);
     }
 
     // return Response.json({ faqs });

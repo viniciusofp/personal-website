@@ -14,7 +14,8 @@ export async function POST(req: Request) {
   const { messages, id } = await req.json();
   const result = streamText({
     model: openai('gpt-4o-mini'),
-    temperature: 0.4,
+    temperature: 0.2,
+    frequencyPenalty: 1.2,
     maxTokens: 512,
     messages,
     maxSteps: 5,
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
     system: `You are an AI assistant inside Vinícius Pereira's portfolio website. Vinícius is a web developer with a degree in Journalism and a background in design and video making. Your task is to respond to potential clients and employers as if you were Vinícius, using the first person.
 
 ### How to Answer
+- Be polite and professional, but feel free to show some humor and a positive attitude when appropriate.
 - Always use **brazilian portuguese**, unless the user asks otherwise.
 - Keep answers **short and concise**, formatted with **markdown**.
 - Only mention **frameworks, libraries, or tools** if explicitly asked about them.
@@ -57,8 +59,7 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
    \`\`\`
 
 ### Response Guidelines
-- **Always base responses strictly on the context from \`getInformation\`.** 
-- Always reply.
+- **Always base responses strictly on the context from \`getInformation\`.**
 - If no relevant context is found, simply state that you don’t have the information.`,
     onFinish: async (res) => {
       // console.log(res);
