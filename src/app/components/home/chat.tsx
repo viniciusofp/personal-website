@@ -24,7 +24,7 @@ export default function Chat(props: ChatProps) {
   } = useChat();
   return (
     <div className="flex flex-col min-w-0 h-dvh bg-background">
-      <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">
+      {/* <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">
         <Button
           className="bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 hidden md:flex py-1.5 px-2 h-fit md:h-[34px] order-4 md:ml-auto"
           asChild
@@ -37,8 +37,8 @@ export default function Chat(props: ChatProps) {
             Deploy with Vercel
           </Link>
         </Button>
-      </header>
-      <Messages messages={messages} isLoading={isLoading} />
+      </header> */}
+      <Messages messages={messages} isLoading={isLoading} append={append} />
       <form
         ref={formRef}
         onSubmit={handleSubmit}

@@ -15,6 +15,8 @@ import { client } from '@/sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import React from 'react';
 import { Overview } from './overview';
+import { Button } from '@/components/ui/button';
+import { CreateMessage, ChatRequestOptions, Message as MessageAI } from 'ai';
 const builder = imageUrlBuilder(client);
 
 function urlFor(source: any) {
@@ -24,9 +26,17 @@ function urlFor(source: any) {
 export type MessagesProps = {
   messages: any[];
   isLoading: boolean;
+  append: (
+    message: MessageAI | CreateMessage,
+    chatRequestOptions?: ChatRequestOptions
+  ) => Promise<string | null | undefined>;
 };
 
-export default function Messages({ messages, isLoading }: MessagesProps) {
+export default function Messages({
+  messages,
+  isLoading,
+  append
+}: MessagesProps) {
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
   return (
@@ -43,7 +53,7 @@ export default function Messages({ messages, isLoading }: MessagesProps) {
             exit={{ opacity: 0, y: 20 }}
             className="w-full mx-auto max-w-3xl px-4 group/message"
           >
-            <div className="h-0.5 w-24 bg-stone-500 mx-auto rounded-sm"></div>
+            <div className="h-0.5 w-24 bg-stone-200 mx-auto rounded-sm border-stone-300 my-12"></div>
           </motion.div>
         </AnimatePresence>
       )}
@@ -52,79 +62,48 @@ export default function Messages({ messages, isLoading }: MessagesProps) {
           <React.Fragment key={`message_${index}`}>
             {m.parts.map((part: any) => {
               if (part.type === 'text') {
-                const relatedProjects = m.toolInvocations?.filter(
+                const suggestedQuestions = m.toolInvocations?.filter(
                   (t: any) => t.toolName === 'getInformation'
-                )[0]?.result.posts;
+                )[0]?.result.suggestedQuestions;
                 return (
                   <React.Fragment key={m.id}>
                     <Message agent={m.role} message={part.text} />
-                    {!!relatedProjects &&
+                    {!!suggestedQuestions &&
                       !isLoading &&
                       m.id === messages[messages.length - 1].id && (
-                        <AnimatePresence>
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.98 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.98 }}
-                            transition={{ delay: 0.5 }}
-                            className="w-full mx-auto max-w-3xl px-16"
-                          >
-                            <p className="text-blue-700 text-sm mb-3 border-l-2 pl-3 border-blue-700">
-                              Projetos que podem te interessar
-                            </p>
-                            <Carousel
-                              className="w-full"
-                              opts={{
-                                align: 'start',
-                                loop: true
-                              }}
+                        <div className="max-w-3xl mx-auto w-full px-16">
+                          <AnimatePresence>
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.98 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.98 }}
+                              transition={{ delay: 0.5 }}
+                              className="grid sm:grid-cols-2 gap-2 "
                             >
-                              <CarouselContent className="w-full">
-                                {relatedProjects.map((proj: any) => {
-                                  const postImageUrl =
-                                    proj.media.length > 0
-                                      ? urlFor(proj.media[0])
-                                          ?.width(550)
-                                          .height(310)
-                                          .url()
-                                      : null;
-                                  console.log(proj);
+                              {suggestedQuestions.map(
+                                (q: string, index: number) => {
                                   return (
-                                    <CarouselItem
-                                      key={`${proj._id}_${m.id}`}
-                                      className="lg:basis-1/2"
-                                    >
-                                      <div className="border p-2 rounded-lg flex items-center cursor-pointer hover:bg-stone-100 duration-200">
-                                        {postImageUrl && (
-                                          <div className="aspect-square rounded bg-black w-24 shrink-0 overflow-hidden relative">
-                                            <img
-                                              src={postImageUrl}
-                                              alt=""
-                                              className="w-full h-full object-cover object-center"
-                                            />
-                                          </div>
-                                        )}
+                                    <Button
+                                      key={`${q}_${index}`}
+                                      variant="ghost"
+                                      className="text-center border rounded-xl px-4 py-3.5 text-sm flex-wrap whitespace-normal flex-1 gap-0 sm:flex-col w-full h-auto justify-center items-center"
+                                      onClick={async () => {
+                                        //   window.history.replaceState({}, '', `/chat/${chatId}`);
 
-                                        <div className="pl-5">
-                                          <h2 className="font-bold">
-                                            {proj.title}
-                                          </h2>
-                                          <h3 className="text-sm text-stone-500 font-medium mb-1">
-                                            {proj.label}
-                                          </h3>
-                                        </div>
-                                      </div>
-                                    </CarouselItem>
+                                        append({
+                                          role: 'user',
+                                          content: q
+                                        });
+                                      }}
+                                    >
+                                      {q}
+                                    </Button>
                                   );
-                                })}
-                              </CarouselContent>
-                              <CarouselPrevious />
-                              <CarouselNext />
-                            </Carousel>
-                            {/* 
-                        {JSON.stringify(relatedProjects)} */}
-                          </motion.div>
-                        </AnimatePresence>
+                                }
+                              )}
+                            </motion.div>
+                          </AnimatePresence>
+                        </div>
                       )}
                   </React.Fragment>
                 );

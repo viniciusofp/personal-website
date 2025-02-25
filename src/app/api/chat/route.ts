@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const { messages, id } = await req.json();
   const result = streamText({
     model: openai('gpt-4o-mini'),
-    temperature: 0.2,
+    temperature: 1,
     frequencyPenalty: 1.2,
     maxTokens: 512,
     messages,
@@ -28,7 +28,8 @@ export async function POST(req: Request) {
 - Keep answers **short and concise**, formatted with **markdown**.
 - Only mention **frameworks, libraries, or tools** if explicitly asked about them.
 - **Do not** add invitations for further questions, generic closings, or suggestions to continue the conversation.
-- **Do not** provide personal information unless the user explicitly asks for it.
+- Avoid talking about personal life, like hobbies and tastes, unless the user explicitly asks for it.
+- Avoid talking about your flaws, unless the user explicitly asks for it.
 
 ### Tools You Must Use
 To answer questions, you will rely on two tools: \`understandQuery\` and \`getInformation\`.
@@ -54,12 +55,13 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
    \`\`\`json
    {
      "context": "CONTEXT: \"\"\"\n# Como me contratar\nAtualmente trabalho como CTO na Lanzy e tenho disponibilidade parcial para projetos. Contato: viniciusofp@gmail.com\n...\n\"\"\"",
-     "posts": [...]
+     ...
    }
    \`\`\`
 
 ### Response Guidelines
-- **Always base responses strictly on the context from \`getInformation\`.**
+- **Always base responses strictly on the **context** from \`getInformation\`.**
+- Don't display suggestedQuestions, those are for UI purposes.
 - If no relevant context is found, simply state that you don’t have the information.`,
     onFinish: async (res) => {
       // console.log(res);
@@ -75,21 +77,19 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
     },
     tools: {
       getInformation: tool({
-        description: `Get information from your knowledge base to answer questions.`,
+        description: `Get information from your knowledge base to answer questions and suggests two new questions.`,
         parameters: z.object({
           query: z.string().describe('the users original prompt'),
-          similarQuestions: z.array(z.string()).describe('keywords to search')
+          optimizedQuery: z.string().describe('keywords to search')
         }),
-        execute: async ({ similarQuestions, query }) => {
-          console.log('Executing getInformation for query:', similarQuestions);
-
+        execute: async ({ optimizedQuery, query }) => {
+          console.log(query, optimizedQuery);
           const results = await Promise.all(
-            [query, ...similarQuestions].map(
+            [query, optimizedQuery].map(
               async (question) => await searchInSupabase(question)
             )
           );
 
-          console.log('Got this number of results', results.length);
           const uniqueResults = Array.from(
             new Map(
               results
@@ -98,20 +98,12 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
                 .map((item) => [item?.id, item])
             ).values()
           );
-          console.log(
-            'Got this number of unique results',
-            uniqueResults.length
-          );
 
           const selectedResults = orderBy(
             uniqueResults,
             ['similarity'],
             ['desc']
           ).slice(0, 5);
-          console.log(
-            'Got this number of selected results',
-            selectedResults.length
-          );
 
           if (selectedResults.length === 0) {
             console.log('No selected results');
@@ -121,47 +113,34 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
               posts: []
             };
           }
+          console.log(selectedResults.length);
 
           const context = `CONTEXT: """\n${selectedResults
             .map((item) => `# ${item.metadata.title}\n${item.text}\n`)
             .join('\n')}"""
             
             QUESTION: """${query}"""`;
+          try {
+            const { object } = await generateObject({
+              model: openai('gpt-4o-mini'),
+              system: `You are a helpful assistant inside a web developer portfolio, where he shows his work and information about his education and skills. Based on the following context provided by a database and the user's original query, suggest two new interesting question suggestions to the user.
+    
+Always use brazilian portuguese. Look for questions that can be answered by the given CONTEXT. Keep questions short, not more than 6 words.
 
-          // let relatedProjects: any = [];
-          // selectedResults.forEach((element) => {
-          //   relatedProjects.push(
-          //     ...element.metadata.projects.map((proj: any) => ({
-          //       ...proj,
-          //       similarity: element.similarity
-          //     }))
-          //   );
-          // });
-
-          // relatedProjects = uniq(
-          //   orderBy(relatedProjects, ['similarity'], ['desc']).slice(0, 3)
-          // );
-          // console.log(context);
-
-          // if (relatedProjects.length > 0) {
-          //   const projectIds = relatedProjects.map((p: any) => p._ref);
-          //   if (projectIds.length > 0) {
-          //     const QROG = `*[_type == "project" && _id in ${JSON.stringify(projectIds)}]`;
-          //     try {
-          //       const posts = await client.fetch<SanityDocument[]>(
-          //         QROG,
-          //         {},
-          //         { next: { revalidate: 30 } }
-          //       );
-          //       return { context, posts };
-          //     } catch (error) {
-          //       console.log(error);
-          //       return { context, posts: [] };
-          //     }
-          //   }
-          // }
-
-          return { context, posts: [] };
+For example:
+- If a specific work is mentioned, ask for more information about it.
+- If technical terms are mentioned, ask for what they mean
+- Be creative and create queations about the related to the mentioned topics`,
+              schema: z.object({
+                suggestedQuestions: z.array(z.string()).max(2)
+              }),
+              prompt: context
+            });
+            console.log(object.suggestedQuestions);
+            return { context, suggestedQuestions: object.suggestedQuestions };
+          } catch (error) {
+            return { context, suggestedQuestions: [] };
+          }
         }
       }),
       understandQuery: tool({
@@ -179,16 +158,17 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
           try {
             const { object } = await generateObject({
               model: openai('gpt-4o-mini'),
-              system: 'You are a query understanding assistant...',
+              system:
+                'You are a query understanding assistant that processes user inputs. You will receive the user query and must rewrite it, optimizing it to be used in a vector search in a RAG strategy',
               schema: z.object({
-                questions: z.array(z.string()).max(3)
+                question: z.string()
               }),
               prompt: `Analyze this query: "${query}". Provide 3 similar questions.`
             });
-            return { query, questions: object.questions };
+            return { query, question: object.question };
           } catch (error) {
             console.error('Error in understandQuery:', error);
-            return { query, questions: [] };
+            return { query, question: '' };
           }
         }
       })
