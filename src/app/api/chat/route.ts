@@ -13,12 +13,12 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   const { messages, id } = await req.json();
   const result = streamText({
-    model: openai('gpt-4o'),
+    model: openai('gpt-4o-mini'),
     temperature: 0.4,
-    frequencyPenalty: 1.2,
     maxTokens: 512,
     messages,
     maxSteps: 5,
+    maxRetries: 2,
     system: `You are an AI assistant inside Vinícius Pereira's portfolio website. Vinícius is a web developer with a degree in Journalism and a background in design and video making. Your task is to respond to potential clients and employers as if you were Vinícius, using the first person.
 
 ### How to Answer
@@ -57,10 +57,11 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
    \`\`\`
 
 ### Response Guidelines
-- **Always base responses strictly on the context from \`getInformation\`.**  
-- **Ignore \`posts\`,** they are for client-side use only.
+- **Always base responses strictly on the context from \`getInformation\`.** 
+- Always reply.
 - If no relevant context is found, simply state that you don’t have the information.`,
     onFinish: async (res) => {
+      // console.log(res);
       const chatMessages = [
         ...messages.map((m: Message) => ({ role: m.role, content: m.content })),
         { role: 'assistant', content: res.text }
@@ -79,54 +80,87 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
           similarQuestions: z.array(z.string()).describe('keywords to search')
         }),
         execute: async ({ similarQuestions, query }) => {
-          console.log('getInfo');
+          console.log('Executing getInformation for query:', similarQuestions);
+
           const results = await Promise.all(
-            similarQuestions.map(async (query) => await searchInSupabase(query))
+            [query, ...similarQuestions].map(
+              async (question) => await searchInSupabase(question)
+            )
           );
-          // Flatten the array of arrays and remove duplicates based on 'id'
+
+          console.log('Got this number of results', results.length);
           const uniqueResults = Array.from(
-            new Map(results.flat().map((item) => [item?.id, item])).values()
+            new Map(
+              results
+                .flat()
+                .filter(Boolean)
+                .map((item) => [item?.id, item])
+            ).values()
           );
+          console.log(
+            'Got this number of unique results',
+            uniqueResults.length
+          );
+
           const selectedResults = orderBy(
             uniqueResults,
             ['similarity'],
             ['desc']
           ).slice(0, 5);
-          const context = `CONTEXT: """
-${selectedResults.map((item) => {
-  return `# ${item.metadata.title}
-${item.text}
-
-`;
-})}"""`;
-          let relatedProjects: any = [];
-          selectedResults.forEach((element) => {
-            relatedProjects.push(
-              ...element.metadata.projects.map((proj: any) => ({
-                ...proj,
-                similarity: element.similarity
-              }))
-            );
-          });
-          relatedProjects = uniq(
-            orderBy(relatedProjects, ['similarity'], ['desc']).slice(0, 3)
+          console.log(
+            'Got this number of selected results',
+            selectedResults.length
           );
-          if (relatedProjects.length > 0) {
-            const QROG = `*[_type == "project" && _id in ${JSON.stringify(relatedProjects.map((p: any) => p._ref))}]`;
-            try {
-              const posts = await client.fetch<SanityDocument[]>(
-                QROG,
-                {},
-                { next: { revalidate: 30 } }
-              );
-              return { context, posts };
-            } catch (error) {
-              console.log(error);
-              return { context };
-            }
+
+          if (selectedResults.length === 0) {
+            console.log('No selected results');
+            return {
+              context:
+                'CONTEXT: """Infelizmente, não encontrei informações relevantes."""',
+              posts: []
+            };
           }
 
-          return { context };
+          const context = `CONTEXT: """\n${selectedResults
+            .map((item) => `# ${item.metadata.title}\n${item.text}\n`)
+            .join('\n')}"""
+            
+            QUESTION: """${query}"""`;
+
+          // let relatedProjects: any = [];
+          // selectedResults.forEach((element) => {
+          //   relatedProjects.push(
+          //     ...element.metadata.projects.map((proj: any) => ({
+          //       ...proj,
+          //       similarity: element.similarity
+          //     }))
+          //   );
+          // });
+
+          // relatedProjects = uniq(
+          //   orderBy(relatedProjects, ['similarity'], ['desc']).slice(0, 3)
+          // );
+          // console.log(context);
+
+          // if (relatedProjects.length > 0) {
+          //   const projectIds = relatedProjects.map((p: any) => p._ref);
+          //   if (projectIds.length > 0) {
+          //     const QROG = `*[_type == "project" && _id in ${JSON.stringify(projectIds)}]`;
+          //     try {
+          //       const posts = await client.fetch<SanityDocument[]>(
+          //         QROG,
+          //         {},
+          //         { next: { revalidate: 30 } }
+          //       );
+          //       return { context, posts };
+          //     } catch (error) {
+          //       console.log(error);
+          //       return { context, posts: [] };
+          //     }
+          //   }
+          // }
+
+          return { context, posts: [] };
         }
       }),
       understandQuery: tool({
@@ -141,20 +175,20 @@ ${item.text}
         }),
         execute: async ({ query }) => {
           console.log('understandQuery');
-          const { object } = await generateObject({
-            model: openai('gpt-4o-mini'),
-            system:
-              'You are a query understanding assistant. Analyze the user query and generate similar questions.',
-            schema: z.object({
-              questions: z
-                .array(z.string())
-                .max(3)
-                .describe("similar questions to the user's query. be concise.")
-            }),
-            prompt: `Analyze this query: "${query}". Provide the following:
-                    3 similar questions that could help answer the user's query`
-          });
-          return { query, questions: object.questions };
+          try {
+            const { object } = await generateObject({
+              model: openai('gpt-4o-mini'),
+              system: 'You are a query understanding assistant...',
+              schema: z.object({
+                questions: z.array(z.string()).max(3)
+              }),
+              prompt: `Analyze this query: "${query}". Provide 3 similar questions.`
+            });
+            return { query, questions: object.questions };
+          } catch (error) {
+            console.error('Error in understandQuery:', error);
+            return { query, questions: [] };
+          }
         }
       })
     }
