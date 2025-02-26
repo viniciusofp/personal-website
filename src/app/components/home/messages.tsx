@@ -4,19 +4,13 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useScrollToBottom } from '../use-scroll-to-bottom';
 import Message from './message';
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious
-} from '@/components/ui/carousel';
 import { client } from '@/sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
+import { ChatRequestOptions, CreateMessage, Message as MessageAI } from 'ai';
 import React from 'react';
 import { Overview } from './overview';
-import { Button } from '@/components/ui/button';
-import { CreateMessage, ChatRequestOptions, Message as MessageAI } from 'ai';
+import SuggestedProjects from './suggestedProjects';
+import SuggestedQuestions from './suggestedQuestions';
 const builder = imageUrlBuilder(client);
 
 function urlFor(source: any) {
@@ -65,45 +59,25 @@ export default function Messages({
                 const suggestedQuestions = m.toolInvocations?.filter(
                   (t: any) => t.toolName === 'getInformation'
                 )[0]?.result.suggestedQuestions;
+                const relatedWork: { _ref: string }[] =
+                  m.toolInvocations?.filter(
+                    (t: any) => t.toolName === 'getInformation'
+                  )[0]?.result.relatedWork;
                 return (
                   <React.Fragment key={m.id}>
                     <Message agent={m.role} message={part.text} />
                     {!!suggestedQuestions &&
                       !isLoading &&
                       m.id === messages[messages.length - 1].id && (
-                        <div className="max-w-3xl mx-auto w-full px-16">
-                          <AnimatePresence>
-                            <motion.div
-                              initial={{ opacity: 0, scale: 0.98 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              exit={{ opacity: 0, scale: 0.98 }}
-                              transition={{ delay: 0.5 }}
-                              className="grid sm:grid-cols-2 gap-2 "
-                            >
-                              {suggestedQuestions.map(
-                                (q: string, index: number) => {
-                                  return (
-                                    <Button
-                                      key={`${q}_${index}`}
-                                      variant="ghost"
-                                      className="text-center border rounded-xl px-4 py-3.5 text-sm flex-wrap whitespace-normal flex-1 gap-0 sm:flex-col w-full h-auto justify-center items-center"
-                                      onClick={async () => {
-                                        //   window.history.replaceState({}, '', `/chat/${chatId}`);
-
-                                        append({
-                                          role: 'user',
-                                          content: q
-                                        });
-                                      }}
-                                    >
-                                      {q}
-                                    </Button>
-                                  );
-                                }
-                              )}
-                            </motion.div>
-                          </AnimatePresence>
-                        </div>
+                        <SuggestedQuestions
+                          suggestedQuestions={suggestedQuestions}
+                          append={append}
+                        />
+                      )}
+                    {!!relatedWork &&
+                      !isLoading &&
+                      m.id === messages[messages.length - 1].id && (
+                        <SuggestedProjects relatedWork={relatedWork} />
                       )}
                   </React.Fragment>
                 );

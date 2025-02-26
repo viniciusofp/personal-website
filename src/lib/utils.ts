@@ -46,3 +46,19 @@ export function generateUUID(): string {
     return v.toString(16);
   });
 }
+
+export const postFetcher = async (url: string, body: any) => {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch');
+  }
+
+  return res.json();
+};

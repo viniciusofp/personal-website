@@ -23,7 +23,6 @@ export default function Chat(props: ChatProps) {
     isLoading,
     error
   } = useChat();
-  console.log(error);
   return (
     <div className="flex flex-col min-w-0 h-dvh bg-background">
       {/* <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">

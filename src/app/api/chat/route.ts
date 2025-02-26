@@ -3,7 +3,7 @@ import { searchInSupabase } from '@/lib/embeddings';
 import { client } from '@/sanity/client';
 import { openai } from '@ai-sdk/openai';
 import { generateObject, Message, streamText, tool } from 'ai';
-import { orderBy, uniq } from 'lodash';
+import { flatten, flattenDeep, orderBy, uniq, uniqBy } from 'lodash';
 import { SanityDocument } from 'next-sanity';
 import { z } from 'zod';
 
@@ -87,7 +87,6 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
           optimizedQuery: z.string().describe('keywords to search')
         }),
         execute: async ({ optimizedQuery, query }) => {
-          console.log(query, optimizedQuery);
           const results = await Promise.all(
             [query, optimizedQuery].map(
               async (question) => await searchInSupabase(question)
@@ -102,6 +101,7 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
                 .map((item) => [item?.id, item])
             ).values()
           );
+          console.log(uniqueResults.map((r) => r.metadata.title));
 
           const selectedResults = orderBy(
             uniqueResults,
@@ -117,7 +117,43 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
               posts: []
             };
           }
-          console.log(selectedResults.length);
+          let relatedWork = selectedResults.filter(
+            (r) =>
+              r.similarity > 0.35 &&
+              r.metadata.relatedWork &&
+              r.metadata.relatedWork.length > 0
+          )
+            ? flattenDeep(
+                selectedResults
+                  .filter(
+                    (r) =>
+                      r.metadata.relatedWork &&
+                      r.metadata.relatedWork.length > 0
+                  )
+                  .map((p) =>
+                    p.metadata.relatedWork.map((r: any) => ({
+                      _ref: r._ref,
+                      similarity: p.similarity
+                    }))
+                  )
+              )
+            : [];
+          if (
+            selectedResults.filter(
+              (r) => r.similarity > 0.35 && r.metadata._type === 'project'
+            ).length > 0
+          ) {
+            let projects = selectedResults
+              .filter(
+                (r) => r.similarity > 0.35 && r.metadata._type === 'project'
+              )
+              .map((p) => ({ _ref: p.id, similarity: p.similarity }));
+            relatedWork = [...relatedWork, ...projects];
+          }
+          relatedWork = uniqBy(
+            orderBy(relatedWork, ['similarity'], ['desc']),
+            '_ref'
+          ).slice(0, 2);
 
           const context = `CONTEXT: """\n${selectedResults
             .map((item) => `# ${item.metadata.title}\n${item.text}\n`)
@@ -140,10 +176,13 @@ For example:
               }),
               prompt: context
             });
-            console.log(object.suggestedQuestions);
-            return { context, suggestedQuestions: object.suggestedQuestions };
+            return {
+              context,
+              suggestedQuestions: object.suggestedQuestions,
+              relatedWork
+            };
           } catch (error) {
-            return { context, suggestedQuestions: [] };
+            return { context, suggestedQuestions: [], relatedWork };
           }
         }
       }),
@@ -153,7 +192,6 @@ For example:
           query: z.string().describe('the users query')
         }),
         execute: async ({ query }) => {
-          console.log('understandQuery');
           try {
             const { object } = await generateObject({
               model: openai('gpt-4o-mini'),
