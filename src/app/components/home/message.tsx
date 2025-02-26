@@ -53,9 +53,11 @@ export default function Message(props: MessageProps) {
           <div className="flex flex-col gap-4 w-full">
             <div className="flex flex-row gap-2 items-start">
               <div
-                className={cn('flex flex-col gap-4', {
+                className={cn('flex flex-col gap-4 border', {
                   'bg-green-200 !text-primary px-3 py-2 rounded-xl border-green-300':
-                    agent === 'user'
+                    agent === 'user',
+                  'bg-white !text-primary px-3 py-2 rounded-xl border-stone-100':
+                    agent === 'assistant'
                 })}
               >
                 <CustomMarkdown>{message}</CustomMarkdown>

@@ -24,7 +24,7 @@ export default function Chat(props: ChatProps) {
     error
   } = useChat();
   return (
-    <div className="flex flex-col min-w-0 h-dvh bg-background">
+    <div className="flex flex-col min-w-0 h-dvh">
       {/* <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">
         <Button
           className="bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-900 hidden md:flex py-1.5 px-2 h-fit md:h-[34px] order-4 md:ml-auto"
@@ -43,7 +43,7 @@ export default function Chat(props: ChatProps) {
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl"
+        className="flex mx-auto px-4 pb-4 md:pb-6 gap-2 w-full md:max-w-3xl"
       >
         <ModalInput
           input={input}

@@ -56,7 +56,7 @@ export default function SuggestedProjects({
                 <AccordionItem value={post._id}>
                   <AccordionTrigger>{post.title}</AccordionTrigger>
                   <AccordionContent>
-                    <div className="grid md:flex gap-5 px-4 py-3 bg-stone-200 border rounded-xl">
+                    <div className="grid md:flex gap-5 px-4 py-3 bg-stone-100 border rounded-xl">
                       <div className="grid gap-2 shrink-0 w-full md:w-1/3">
                         <div className="aspect-video md:aspect-square rounded bg-stone-200 relative overflow-hidden">
                           <img

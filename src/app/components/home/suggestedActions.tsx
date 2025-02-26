@@ -4,6 +4,7 @@ import { ChatRequestOptions, CreateMessage, Message } from 'ai';
 import { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'motion/react';
+import { Contact, Eye, Pencil } from 'lucide-react';
 
 interface SuggestedActionsProps {
   chatId: string;
@@ -16,27 +17,22 @@ interface SuggestedActionsProps {
 function PureSuggestedActions({ append, chatId }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: 'Com o que você trabalha?',
-      action: 'Com o que você trabalha?'
-    },
-    {
-      title: `Me conte sobre você.`,
-      action: `Me conte sobre você.`
-    },
-    {
-      title: 'Você tem disponibilidade',
-      label: `para aceitar novos trabalhos?`,
-      action: `Você tem disponibilidade para aceitar novos trabalhos?`
+      title: 'Quero te conhecer',
+      label: 'Quem é você e com o que você trabalha?',
+      action: 'Quem é você e com o que você trabalha?',
+      icon: <Eye className="md:!size-5" />
     },
     {
       title: 'Quero te contratar',
       label: 'Como posso entrar em contato com você?',
-      action: 'Como posso entrar em contato com você?'
+      action:
+        'Como posso entrar em contato com você? Você tem disponibilidade para novos trabalhos?',
+      icon: <Contact className="md:!size-5" />
     }
   ];
 
   return (
-    <div className="grid sm:grid-cols-2 gap-2 w-full">
+    <div className="grid sm:grid-cols-2 gap-2 md:gap-5 w-full">
       {suggestedActions.map((suggestedAction, index) => (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -48,7 +44,7 @@ function PureSuggestedActions({ append, chatId }: SuggestedActionsProps) {
         >
           <Button
             variant="ghost"
-            className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-0 sm:flex-col w-full h-auto justify-start items-start"
+            className="text-left border border-stone-200 rounded-xl px-4 py-3.5 text-sm flex gap-3 md:gap-5 w-full h-auto justify-start items-center text-stone-700 whitespace-normal"
             onClick={async () => {
               //   window.history.replaceState({}, '', `/chat/${chatId}`);
 
@@ -58,12 +54,18 @@ function PureSuggestedActions({ append, chatId }: SuggestedActionsProps) {
               });
             }}
           >
-            <span className="font-medium">{suggestedAction.title}</span>
-            {suggestedAction.label && (
-              <span className="text-muted-foreground">
-                {suggestedAction.label}
-              </span>
-            )}
+            <div className="rounded-lg bg-stone-800 text-muted p-3 md:p-4">
+              {suggestedAction.icon}
+            </div>
+
+            <span className="grid">
+              <span className="font-medium">{suggestedAction.title}</span>
+              {suggestedAction.label && (
+                <span className="text-muted-foreground">
+                  {suggestedAction.label}
+                </span>
+              )}
+            </span>
           </Button>
         </motion.div>
       ))}

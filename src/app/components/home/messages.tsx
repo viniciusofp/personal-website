@@ -45,9 +45,9 @@ export default function Messages({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="w-full mx-auto max-w-3xl px-4 group/message"
+            className="w-full mx-auto max-w-3xl px-4 group/message mt-2 mb-8"
           >
-            <div className="h-0.5 w-24 bg-stone-200 mx-auto rounded-sm border-stone-300 my-12"></div>
+            <div className="h-0.5 w-24 bg-stone-200 mx-auto rounded-sm border-stone-300"></div>
           </motion.div>
         </AnimatePresence>
       )}
@@ -66,6 +66,11 @@ export default function Messages({
                 return (
                   <React.Fragment key={m.id}>
                     <Message agent={m.role} message={part.text} />
+                    {!!relatedWork &&
+                      !isLoading &&
+                      m.id === messages[messages.length - 1].id && (
+                        <SuggestedProjects relatedWork={relatedWork} />
+                      )}
                     {!!suggestedQuestions &&
                       !isLoading &&
                       m.id === messages[messages.length - 1].id && (
@@ -73,11 +78,6 @@ export default function Messages({
                           suggestedQuestions={suggestedQuestions}
                           append={append}
                         />
-                      )}
-                    {!!relatedWork &&
-                      !isLoading &&
-                      m.id === messages[messages.length - 1].id && (
-                        <SuggestedProjects relatedWork={relatedWork} />
                       )}
                   </React.Fragment>
                 );

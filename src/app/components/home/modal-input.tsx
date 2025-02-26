@@ -8,6 +8,7 @@ import { LoaderCircle, SendIcon, SquareIcon } from 'lucide-react';
 import { Ref, useRef } from 'react';
 import { ChangeEventHandler } from 'react';
 import { SuggestedActions } from './suggestedActions';
+import React from 'react';
 
 export type ModalInputProps = {
   input: string;
@@ -44,46 +45,48 @@ export default function ModalInput({
 }: ModalInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   return (
-    <div className="relative w-full flex flex-col gap-4">
+    <div className="grid gap-3 md:gap-5 lg:pb-8 w-full">
       {messages.length === 0 && (
         <SuggestedActions append={append} chatId={chatId} />
       )}
-      <Textarea
-        placeholder="Como posso te ajudar?"
-        value={input}
-        onChange={handleInputChange}
-        className={cn(
-          'min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-2xl !text-base bg-muted pb-10 dark:border-zinc-700'
-        )}
-        rows={2}
-        autoFocus
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            handleSubmit();
-          }
-        }}
-      />
-      <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
-        {isLoading ? (
-          <Button
-            size="icon"
-            className="rounded-full flex items-center justify-center"
-          >
-            <LoaderCircle className="w-8 h-8 text-white animate-spin duration-[2s]" />
-          </Button>
-        ) : (
-          <Button
-            size="icon"
-            className="rounded-full flex items-center justify-center"
-            type="submit"
-            // input={input}
-            // submitForm={submitForm}
-            // uploadQueue={uploadQueue}
-          >
-            <SendIcon className="w-3.5 h-3.5" />
-          </Button>
-        )}
+      <div className="relative w-full flex flex-col gap-4">
+        <Textarea
+          placeholder="Como posso te ajudar?"
+          value={input}
+          onChange={handleInputChange}
+          className={cn(
+            'min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none !text-base bg-muted dark:border-zinc-700 rounded-full px-4 py-3'
+          )}
+          rows={1}
+          autoFocus
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+              event.preventDefault();
+              handleSubmit();
+            }
+          }}
+        />
+        <div className="absolute top-1/2 -translate-y-1/2 right-2 w-fit flex flex-row justify-end">
+          {isLoading ? (
+            <Button
+              size="icon"
+              className="rounded-full flex items-center justify-center bg-stone-800"
+            >
+              <LoaderCircle className="w-8 h-8 text-white animate-spin duration-[2s]" />
+            </Button>
+          ) : (
+            <Button
+              size="icon"
+              className="rounded-full flex items-center justify-center bg-stone-800"
+              type="submit"
+              // input={input}
+              // submitForm={submitForm}
+              // uploadQueue={uploadQueue}
+            >
+              <SendIcon className="w-3.5 h-3.5" />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

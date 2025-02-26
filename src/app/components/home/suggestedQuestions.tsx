@@ -24,14 +24,14 @@ export default function SuggestedQuestions({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           transition={{ delay: 0.5 }}
-          className="grid sm:grid-cols-2 gap-2 "
+          className="grid sm:grid-cols-2 gap-5 "
         >
           {suggestedQuestions.map((q: string, index: number) => {
             return (
               <Button
                 key={`${q}_${index}`}
                 variant="ghost"
-                className="text-center border rounded-xl px-4 py-3.5 text-sm flex-wrap whitespace-normal flex-1 gap-0 sm:flex-col w-full h-auto justify-center items-center"
+                className="text-left border border-stone-200 rounded-xl px-4 py-3.5 text-sm flex gap-3 w-full h-auto justify-start items-center text-stone-700 whitespace-normal"
                 onClick={async () => {
                   //   window.history.replaceState({}, '', `/chat/${chatId}`);
 
