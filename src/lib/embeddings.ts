@@ -20,10 +20,10 @@ export const saveToSupabase = async (
   metadata = {}
 ) => {
   const embedding = await generateEmbedding(text);
-
+  await supabase.from('documents').delete().neq('_id', '0');
   const { data, error } = await supabase
     .from('documents')
-    .upsert([{ id, type, text, embedding, metadata }]);
+    .insert({ id, type, text, embedding, metadata });
 
   if (error) console.error('Erro ao salvar:', error);
   return data;
