@@ -53,18 +53,7 @@ export default function SuggestedProjects({
           transition={{ delay: 0.5 }}
           className="grid gap-2"
         >
-          <Collapsible className="w-full">
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between space-x-4 w-full">
-                <h4 className="text-sm font-semibold">Projetos relacionados</h4>
-                <Button variant="ghost" size="sm">
-                  <ChevronsUpDown className="h-4 w-4" />
-                  <span className="sr-only">Toggle</span>
-                </Button>
-              </div>
-            </CollapsibleTrigger>
-
-            <CollapsibleContent>
+            <h3 className="text-blue-700 font-bold text-sm pl-3 border-l-2">Projetos sugeridos</h3>
               {data.posts.map((post: any) => {
                 return (
                   <Accordion key={post._id} type="single" collapsible>
@@ -72,7 +61,7 @@ export default function SuggestedProjects({
                       <AccordionTrigger>{post.title}</AccordionTrigger>
                       <AccordionContent>
                         <div className="grid md:flex gap-5 px-4 py-3 bg-stone-200 border rounded-xl">
-                          <div className="grid gap-2 shrink-0 w-1/3">
+                          <div className="grid gap-2 shrink-0 w-full md:w-1/3">
                             <div className="aspect-video md:aspect-square rounded bg-stone-200 relative overflow-hidden">
                               <img
                                 src={urlFor(post.media[0]).width(512).url()}
@@ -108,8 +97,6 @@ export default function SuggestedProjects({
                   </Accordion>
                 );
               })}
-            </CollapsibleContent>
-          </Collapsible>
         </motion.div>
       </AnimatePresence>
     </div>
