@@ -80,6 +80,9 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
         .upsert({ chat_id: id, messages: chatMessages, updated_at: now });
       if (error) console.error('Error fetching conversations:', error);
     },
+    onChunk: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    },
     tools: {
       getInformation: tool({
         description: `Get information from your knowledge base to answer questions and suggests two new questions.`,
