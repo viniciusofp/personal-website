@@ -18,7 +18,8 @@ const eslintConfig = [
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
-      'react/no-children-prop': 'off'
+      'react/no-children-prop': 'off',
+      '@next/next/no-img-element': 'off'
     }
   })
 ];

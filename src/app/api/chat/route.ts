@@ -102,7 +102,6 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
                 .map((item) => [item?.id, item])
             ).values()
           );
-          console.log(uniqueResults.map((r) => r.metadata.title));
 
           const selectedResults = orderBy(
             uniqueResults,
@@ -144,7 +143,7 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
               (r) => r.similarity > 0.35 && r.metadata._type === 'project'
             ).length > 0
           ) {
-            let projects = selectedResults
+            const projects = selectedResults
               .filter(
                 (r) => r.similarity > 0.35 && r.metadata._type === 'project'
               )
