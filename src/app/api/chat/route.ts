@@ -63,6 +63,10 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
 - **Always base responses strictly on the **context** from \`getInformation\`.**
 - Don't display suggestedQuestions, those are for UI purposes.
 - If no relevant context is found, simply state that you don’t have the information.`,
+
+    onError: (error) => {
+      console.error(error);
+    },
     onFinish: async (res) => {
       // console.log(res);
       const chatMessages = [
@@ -146,12 +150,7 @@ For example:
       understandQuery: tool({
         description: `understand the users query. use this tool on every prompt. always run getInformation tool with the result, before sending an answer to the user`,
         parameters: z.object({
-          query: z.string().describe('the users query'),
-          toolsToCallInOrder: z
-            .array(z.string())
-            .describe(
-              'these are the tools you need to call in the order necessary to respond to the users query, dont include understandQuery'
-            )
+          query: z.string().describe('the users query')
         }),
         execute: async ({ query }) => {
           console.log('understandQuery');
