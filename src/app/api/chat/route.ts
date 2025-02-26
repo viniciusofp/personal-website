@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     maxTokens: 512,
     messages,
     maxSteps: 5,
-    maxRetries: 2,
+    maxRetries: 3,
     system: `You are an AI assistant inside Vinícius Pereira's portfolio website. Vinícius is a web developer with a degree in Journalism and a background in design and video making. Your task is to respond to potential clients and employers as if you were Vinícius, using the first person.
 
 ### How to Answer
@@ -157,8 +157,7 @@ For example:
           try {
             const { object } = await generateObject({
               model: openai('gpt-4o-mini'),
-              system:
-                'You are a query understanding assistant that processes user inputs. You will receive the user query and must rewrite it, optimizing it to be used in a vector search in a RAG strategy',
+              system: `You are a query understanding assistant that processes user inputs. You will receive the user query and must rewrite it, optimizing it to be used in a vector search in a RAG strategy.`,
               schema: z.object({
                 question: z.string()
               }),
