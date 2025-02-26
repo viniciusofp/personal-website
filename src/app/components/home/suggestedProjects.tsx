@@ -47,7 +47,7 @@ export default function SuggestedProjects({
           transition={{ delay: 0.5 }}
           className="grid gap-2"
         >
-          <h3 className="text-blue-700 font-bold text-sm pl-3 border-l-2">
+          <h3 className="text-stone-700 uppercase tracking-wide text-[10px] pl-3 border-l-2">
             Projetos sugeridos
           </h3>
           {data.posts.map((post: any) => {
