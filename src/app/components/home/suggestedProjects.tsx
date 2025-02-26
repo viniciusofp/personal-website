@@ -51,7 +51,7 @@ export default function SuggestedProjects({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           transition={{ delay: 0.5 }}
-          className="grid gap-2 rounded-xl bg-stone-100 border px-4 py-3"
+          className="grid gap-2"
         >
           <Collapsible className="w-full">
             <CollapsibleTrigger asChild>
@@ -71,9 +71,9 @@ export default function SuggestedProjects({
                     <AccordionItem value={post._id}>
                       <AccordionTrigger>{post.title}</AccordionTrigger>
                       <AccordionContent>
-                        <div className="grid md:flex gap-5">
-                          <div className="grid gap-2">
-                            <div className="aspect-video md:aspect-square rounded bg-stone-200 shrink-0 w-full md:w-36 md:h-36 relative overflow-hidden">
+                        <div className="grid md:flex gap-5 px-4 py-3 bg-stone-200 border rounded-xl">
+                          <div className="grid gap-2 shrink-0 w-1/3">
+                            <div className="aspect-video md:aspect-square rounded bg-stone-200 relative overflow-hidden">
                               <img
                                 src={urlFor(post.media[0]).width(512).url()}
                                 alt=""
@@ -81,10 +81,15 @@ export default function SuggestedProjects({
                               />
                             </div>
                           </div>
-                          <div className="grid gap-3">
-                            <p className="text-xs shrink text-stone-600 self-center">
-                              {post.description}
-                            </p>
+                          <div className="grid gap-3 self-center">
+                            <div>
+                              <h3 className="font-bold mb-1">
+                              {post.label}
+                              </h3>
+                              <p className=" text-xs shrink text-stone-600">
+                                {post.description}
+                              </p>
+                            </div>
                             {!!post.url ? (
                               <Link
                                 href={post.url}

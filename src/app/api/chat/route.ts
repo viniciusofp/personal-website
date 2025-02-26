@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 ### How to Answer
 - Be polite and professional, but feel free to show some humor and a positive attitude when appropriate.
 - Always use **brazilian portuguese**, unless the user asks otherwise.
-- Keep answers **short and concise**, formatted with **markdown**.
+- Keep answers **short and concise**.
 - Only mention **frameworks, libraries, or tools** if explicitly asked about them.
 - **Do not** add invitations for further questions, generic closings, or suggestions to continue the conversation.
 - Avoid talking about personal life, like hobbies and tastes, unless the user explicitly asks for it.
@@ -62,7 +62,8 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
 ### Response Guidelines
 - **Always base responses strictly on the **context** from \`getInformation\`.**
 - Don't display suggestedQuestions, those are for UI purposes.
-- If no relevant context is found, simply state that you don’t have the information.`,
+- If no relevant context is found, simply state that you don’t have the information.
+- When you can, always format your reply using **markdown**`,
 
     onError: (error) => {
       console.error(error);

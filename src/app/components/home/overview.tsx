@@ -26,7 +26,7 @@ export const Overview = () => {
           <span>+</span>
           <MessageCircleIcon className="w-10 h-10 stroke-1 fill-lime-400 text-lime-700" />
         </div>
-        <h1 className="~text-2xl/5xl font-black">Oi, como posso ajudar?</h1>
+        <h1 className="text-2xl md:text-4xl xl:text-5xl font-black">Oi, como posso ajudar?</h1>
         <div>
           <p className="text-slate-600 mb-2">
             Sou <b>Vinícius Pereira</b>,{' '}
