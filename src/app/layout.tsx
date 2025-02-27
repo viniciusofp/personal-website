@@ -19,7 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${sora.className} antialiased grainy-bg`}>
+      <body
+        className={`${sora.className} antialiased grainy-bg bg-neutral-300`}
+      >
         {children}
       </body>
     </html>

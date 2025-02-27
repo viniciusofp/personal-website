@@ -70,7 +70,7 @@ export default function ModalInput({
           {isLoading ? (
             <Button
               size="icon"
-              className="rounded-full flex items-center justify-center bg-stone-800"
+              className="rounded-full flex items-center justify-center bg-gradient-to-br from-stone-700 to-sky-900"
             >
               <LoaderCircle className="w-8 h-8 text-white animate-spin duration-[2s]" />
             </Button>

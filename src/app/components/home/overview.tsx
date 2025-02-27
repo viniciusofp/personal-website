@@ -2,9 +2,18 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Linkedin } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Funnel_Display } from 'next/font/google';
+import {
+  Anton,
+  Fraunces,
+  Funnel_Display,
+  Montserrat,
+  Playfair_Display,
+  Poppins,
+  Radley,
+  SUSE
+} from 'next/font/google';
 import Link from 'next/link';
-const display = Funnel_Display({
+const display = SUSE({
   subsets: ['latin'],
   display: 'swap'
 });
@@ -19,17 +28,17 @@ export const Overview = () => {
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ delay: 0.5 }}
     >
-      <div className="rounded-xl p-6 md:p-3 flex flex-col gap-2 md:gap-5 lg:gap-8 leading-relaxed text-center max-w-xl">
+      <div className="rounded-xl p-6 md:p-3 flex flex-col gap-3 md:gap-5 lg:gap-8 leading-relaxed text-center max-w-xl">
         <div>
           <h1
             className={cn(
-              `text-4xl md:text-5xl font-black mb-4 bg-gradient-to-br from-stone-700 to-sky-700 bg-clip-text text-transparent py-1`,
+              `text-4xl md:text-5xl font-extrabold mb-3 md:mb-5 bg-gradient-to-br from-stone-800 to-stone-600 bg-clip-text text-transparent py-1`,
               display.className
             )}
           >
             Oi, como posso ajudar?
           </h1>
-          <p className="text-slate-700 text-lg md:text-xl mb-5">
+          <p className="text-slate-700 text-lg md:text-xl mb-3 md:mb-5">
             Sou <b>Vinícius Pereira</b>, desenvolvedor full-stack formado em
             jornalismo e com experiência nas áreas de design e vídeo.
           </p>

@@ -11,6 +11,7 @@ import React from 'react';
 import { Overview } from './overview';
 import SuggestedProjects from './suggestedProjects';
 import SuggestedQuestions from './suggestedQuestions';
+import { Ellipsis } from 'lucide-react';
 const builder = imageUrlBuilder(client);
 
 function urlFor(source: any) {
@@ -36,7 +37,7 @@ export default function Messages({
   return (
     <div
       ref={messagesContainerRef}
-      className="flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4"
+      className="flex flex-col min-w-0 gap-5 md:gap-6 flex-1 overflow-y-scroll pt-4"
     >
       {true && <Overview />}
       {messages.length > 0 && (
@@ -59,18 +60,15 @@ export default function Messages({
                 const suggestedQuestions = m.toolInvocations?.filter(
                   (t: any) => t.toolName === 'getInformation'
                 )[0]?.result.suggestedQuestions;
-                const relatedWork: { _ref: string }[] =
-                  m.toolInvocations?.filter(
-                    (t: any) => t.toolName === 'getInformation'
-                  )[0]?.result.relatedWork;
                 return (
                   <React.Fragment key={m.id}>
-                    <Message agent={m.role} message={part.text} />
-                    {!!relatedWork &&
-                      !isLoading &&
-                      m.id === messages[messages.length - 1].id && (
-                        <SuggestedProjects relatedWork={relatedWork} />
-                      )}
+                    <Message
+                      agent={m.role}
+                      text={part.text}
+                      message={m}
+                      isLoading={isLoading}
+                      isCurrent={m.id === messages[messages.length - 1].id}
+                    />
                     {!!suggestedQuestions &&
                       !isLoading &&
                       m.id === messages[messages.length - 1].id && (
@@ -88,8 +86,8 @@ export default function Messages({
       })}
       {isLoading && (
         <AnimatePresence>
-          <motion.div className="w-full mx-auto max-w-3xl px-4 animate-pulse text-stone-500">
-            Pensando...
+          <motion.div className="w-full mx-auto text-xs flex justify-center max-w-3xl px-4 animate-pulse text-stone-500">
+            Carregando...
           </motion.div>
         </AnimatePresence>
       )}

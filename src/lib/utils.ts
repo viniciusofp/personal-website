@@ -62,3 +62,16 @@ export const postFetcher = async (url: string, body: any) => {
 
   return res.json();
 };
+
+export function formatTimeHHmm(dateInput: Date | string): string {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+
+  if (isNaN(date.getTime())) {
+    throw new Error('Invalid date input');
+  }
+
+  return date.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}

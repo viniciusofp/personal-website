@@ -44,7 +44,7 @@ function PureSuggestedActions({ append, chatId }: SuggestedActionsProps) {
         >
           <Button
             variant="ghost"
-            className="text-left border border-stone-200 rounded-xl px-4 py-3.5 text-sm flex gap-3 md:gap-5 w-full h-auto justify-start items-center text-stone-700 whitespace-normal"
+            className="text-left border border-stone-200 rounded-xl px-3 md:px-4 md:py-3.5 text-sm flex gap-3 md:gap-5 w-full h-auto justify-start items-center text-stone-700 whitespace-normal"
             onClick={async () => {
               //   window.history.replaceState({}, '', `/chat/${chatId}`);
 
@@ -54,7 +54,7 @@ function PureSuggestedActions({ append, chatId }: SuggestedActionsProps) {
               });
             }}
           >
-            <div className="rounded-lg bg-stone-800 text-muted p-3 md:p-4">
+            <div className="rounded-lg bg-gradient-to-br from-stone-800 to-stone-700 text-muted p-2 md:p-4">
               {suggestedAction.icon}
             </div>
 

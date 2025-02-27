@@ -1,5 +1,6 @@
 import { client } from '@/sanity/client';
 import { SanityDocument } from 'next-sanity';
+import Link from 'next/link';
 
 export type TrainingProps = {};
 
@@ -34,6 +35,7 @@ export default async function Training(props: TrainingProps) {
   const qea = await client.fetch<SanityDocument[]>(QEA_QUERY, {}, options);
   return (
     <main className="container mx-auto my-12 px-4">
+      <Link href="/">voltar</Link>
       {qea.map((q) => {
         const messages = q.messages.map(
           (m: { title: string; text: string }) =>

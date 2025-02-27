@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const { messages, id } = await req.json();
   const result = streamText({
     model: openai('gpt-4o-mini'),
-    temperature: 1,
+    temperature: 0.7,
     frequencyPenalty: 1.2,
     maxTokens: 512,
     messages,
@@ -68,16 +68,21 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
       console.error(error);
     },
     onFinish: async (res) => {
-      // console.log(res);
-      const chatMessages = [
-        ...messages.map((m: Message) => ({ role: m.role, content: m.content })),
-        { role: 'assistant', content: res.text }
-      ];
-      const now = new Date();
-      const { error } = await supabase
-        .from('conversations')
-        .upsert({ chat_id: id, messages: chatMessages, updated_at: now });
-      if (error) console.error('Error fetching conversations:', error);
+      console.log(JSON.stringify(res.toolCalls));
+      if (process.env.NODE_ENV !== 'development') {
+        const chatMessages = [
+          ...messages.map((m: Message) => ({
+            role: m.role,
+            content: m.content
+          })),
+          { role: 'assistant', content: res.text }
+        ];
+        const now = new Date();
+        const { error } = await supabase
+          .from('conversations')
+          .upsert({ chat_id: id, messages: chatMessages, updated_at: now });
+        if (error) console.error('Error fetching conversations:', error);
+      }
     },
     onChunk: async () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -164,15 +169,18 @@ To answer questions, you will rely on two tools: \`understandQuery\` and \`getIn
             QUESTION: """${query}"""`;
           try {
             const { object } = await generateObject({
-              model: openai('gpt-4o-mini'),
+              model: openai('gpt-4o'),
+              temperature: 1,
               system: `You are a helpful assistant inside a web developer portfolio, where he shows his work and information about his education and skills. Based on the following context provided by a database and the user's original query, suggest two new interesting question suggestions to the user.
     
-Always use brazilian portuguese. Look for questions that can be answered by the given CONTEXT. Keep questions short, not more than 6 words.
+Always use brazilian portuguese. Look for questions that can be answered by the given CONTEXT. Keep questions short, not more than 6 words. 
 
 For example:
-- If a specific work is mentioned, ask for more information about it.
-- If technical terms are mentioned, ask for what they mean
-- Be creative and create queations about the related to the mentioned topics`,
+- Think about questions that would be asked in a job interview.
+- Ask about jobs I have done.
+- If a specific work is mentioned, ask for more information about it. 
+- If technical terms are mentioned, ask for what they mean. Just to clarify for laypeople, don't suggest very technical questions.
+- Be creative and create questions about the related to the mentioned topics.`,
               schema: z.object({
                 suggestedQuestions: z.array(z.string()).max(2)
               }),
@@ -189,7 +197,7 @@ For example:
         }
       }),
       understandQuery: tool({
-        description: `understand the users query. use this tool on every prompt. always run getInformation tool with the result, before sending an answer to the user`,
+        description: `Optimizes user's prompt before passing to getInformation`,
         parameters: z.object({
           query: z.string().describe('the users query')
         }),
@@ -201,7 +209,7 @@ For example:
               schema: z.object({
                 question: z.string()
               }),
-              prompt: `Analyze this query: "${query}". Provide 3 similar questions.`
+              prompt: query
             });
             return { query, question: object.question };
           } catch (error) {

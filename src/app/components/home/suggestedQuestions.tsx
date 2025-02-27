@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Message, CreateMessage, ChatRequestOptions } from 'ai';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -17,32 +18,43 @@ export default function SuggestedQuestions({
   append
 }: SuggestedQuestionsProps) {
   return (
-    <div className="max-w-3xl mx-auto w-full px-16">
+    <div className="max-w-3xl mx-auto w-full px-6">
       <AnimatePresence>
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           transition={{ delay: 0.5 }}
-          className="grid sm:grid-cols-2 gap-5 "
+          className="grid justify-end gap-2 "
         >
+          <p className="text-xs text-stone-500 text-right">
+            Sugestões de perguntas:
+          </p>
           {suggestedQuestions.map((q: string, index: number) => {
             return (
-              <Button
+              <div
                 key={`${q}_${index}`}
-                variant="ghost"
-                className="text-left border border-stone-200 rounded-xl px-4 py-3.5 text-sm flex gap-3 w-full h-auto justify-start items-center text-stone-700 whitespace-normal"
-                onClick={async () => {
-                  //   window.history.replaceState({}, '', `/chat/${chatId}`);
-
-                  append({
-                    role: 'user',
-                    content: q
-                  });
-                }}
+                className="flex flex-row gap-2 items-start justify-end"
               >
-                {q}
-              </Button>
+                <div
+                  className={cn(
+                    'flex cursor-pointer flex-col text-sm border !text-primary px-3 pb-2 pt-2.5 rounded-xl shadow-sm duration-300',
+                    {
+                      'bg-green-100 border-green-200 hover:bg-green-200': true
+                    }
+                  )}
+                  onClick={async () => {
+                    //   window.history.replaceState({}, '', `/chat/${chatId}`);
+
+                    append({
+                      role: 'user',
+                      content: q
+                    });
+                  }}
+                >
+                  {q}
+                </div>
+              </div>
             );
           })}
         </motion.div>
